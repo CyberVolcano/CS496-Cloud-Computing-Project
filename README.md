@@ -6,9 +6,9 @@ analytics, or dashboarding. It exposes you to event-driven architectures, messag
 brokering (MQTT), and how to set up dashboards for streaming data.
 
 Use Case
-•	A greenhouse or small farm environment logging conditions to optimize plant growth.
-•	A “smart home” demonstration collecting sensor data (door sensors, temperature, light levels).
-•	A robotics club streaming data from multiple bots or drones to a single dashboard.
+ - 	A greenhouse or small farm environment logging conditions to optimize plant growth.
+ - 	A “smart home” demonstration collecting sensor data (door sensors, temperature, light levels).
+ - 	A robotics club streaming data from multiple bots or drones to a single dashboard.
 Difficulty Bonus
 3
 
