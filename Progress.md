@@ -9,7 +9,7 @@ Difficulty Bonus
 
 Basic Rubric (How to Start) - D.L. Assuming we are taking the cloud route.
 1.	Messaging Protocol
-- [ ]Cloud: Azure IoT Hub free tier.
+- [ ] Cloud: Azure IoT Hub free tier.
 o	Local: Mosquitto (MQTT broker) installed in a container or on your machine.
 2.	Simulated Device Script
 - [ ] Python or Node.js program that sends random sensor readings at intervals.
