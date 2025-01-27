@@ -10,13 +10,13 @@ Difficulty Bonus
 Basic Rubric (How to Start) - D.L. Assuming we are taking the cloud route.
 1.	Messaging Protocol
 - [ ] Cloud: Azure IoT Hub free tier.
-o	Local: Mosquitto (MQTT broker) installed in a container or on your machine.
+- Local: Mosquitto (MQTT broker) installed in a container or on your machine.
 2.	Simulated Device Script
 - [ ] Python or Node.js program that sends random sensor readings at intervals.
 - [ ] Structure the data as JSON (e.g., { "temp": 22.5, "humidity": 60 }).
 3.	Data Storage
 - [ ] Azure: Use Cosmos DB or Table Storage.
-o	Local: Try InfluxDB (time-series) or PostgreSQL.
+-	Local: Try InfluxDB (time-series) or PostgreSQL.
 5.	Visualization
 - [ ] Grafana or a custom front-end that queries your DB for the latest readings.
 5.	Testing
