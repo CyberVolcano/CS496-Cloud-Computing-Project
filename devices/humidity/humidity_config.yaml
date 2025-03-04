@@ -1,0 +1,13 @@
+device:
+  sampling:
+    interval: 5 # Seconds between readings
+    aggregation_count: 5 # Number of readings to aggregate
+  sensors:
+    temperature:
+      min: 20.0
+      max: 30.0
+      decimal_places: 2
+    humidity:
+      min: 20.0
+      max: 30.0
+      decimal_places: 2
