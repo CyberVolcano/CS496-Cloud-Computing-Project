@@ -1,5 +1,6 @@
 from azure.iot.device import IoTHubDeviceClient, Message
 from ..util.load_env import create_connection_string, is_dev_mode, is_prod_mode
+from datetime import datetime, UTC
 import time, random, json, yaml, os
 
 class HumidityDevice:
@@ -30,9 +31,9 @@ class HumidityDevice:
         """
         self.client = None
 
+        CONNECTION_STRING = create_connection_string("HUMIDITY_DEVICE_ID")
         # Connect to the client if in production mode
         if is_prod_mode():
-            CONNECTION_STRING = create_connection_string("HUMIDITY_DEVICE_ID")
             self.client = IoTHubDeviceClient.create_from_connection_string(CONNECTION_STRING)
 
         # Load the yaml config
@@ -60,7 +61,7 @@ class HumidityDevice:
         except Exception as e:
             print(e)
     
-    def send_edge_computed_telemetry(self) -> None:
+    def send_telemetry(self) -> None:
         """ Generate and process sensor data continuously.
 
         Collects temperature and humidity readings at specified intervals.
@@ -80,10 +81,12 @@ class HumidityDevice:
         """        
         while True:
             # Generate simulated sensor readings
+            timestamp = datetime.now(UTC).isoformat()
             temperature = round(random.uniform(self.temp_min, self.temp_max), self.temp_decimal_places)
             humidity = round(random.uniform(self.humidity_min, self.humidity_max), self.humidity_decimal_places)
                 
             telemetry_data = {
+                "timestamp": timestamp,
                 "temperature": temperature,
                 "humidity": humidity
             }
@@ -111,7 +114,7 @@ class HumidityDevice:
 if __name__ == "__main__":
     try:
         device = HumidityDevice()
-        device.send_edge_computed_telemetry()
+        device.send_telemetry()
 
     except KeyboardInterrupt:
         print("Stopped sending data")

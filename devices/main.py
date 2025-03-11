@@ -4,15 +4,19 @@ from .humidity import HumidityDevice, HumidityAggregatedDevice
 
 def run_with_mode(mode: str, device_type: str = "humidity"):
     os.environ["MODE"] = mode
-
-    # Choose the device based on the command-line argument.
-    if device_type.lower() == "aggregated":
-        device = HumidityAggregatedDevice()
-    else:  # default to HumidityDevice
-        device = HumidityDevice()
     
+    try: 
+        # Choose the device based on the command-line argument.
+        if device_type.lower() == "aggregated":
+            device = HumidityAggregatedDevice()
+        else:  # default to HumidityDevice
+            device = HumidityDevice()
+    except EnvironmentError as e:
+        print(e)
+        sys.exit(1)
+
     try:
-        device.send_edge_computed_telemetry()
+        device.send_telemetry()
     except KeyboardInterrupt:
         print("Stopped sending data")
     finally:

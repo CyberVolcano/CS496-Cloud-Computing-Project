@@ -1,5 +1,6 @@
 from azure.iot.device import IoTHubDeviceClient, Message
 from ..util.load_env import create_connection_string, is_dev_mode, is_prod_mode
+from datetime import datetime, UTC
 import time, random, json, yaml, os
 
 class HumidityAggregatedDevice:
@@ -62,7 +63,7 @@ class HumidityAggregatedDevice:
         except Exception as e:
             print(e)
     
-    def send_edge_computed_telemetry(self) -> None:
+    def send_telemetry(self) -> None:
         """ Generate and process sensor data continuously.
 
         Collects temperature and humidity readings at specified intervals.
@@ -89,20 +90,25 @@ class HumidityAggregatedDevice:
             temperature = round(random.uniform(self.temp_min, self.temp_max), self.temp_decimal_places)
             humidity = round(random.uniform(self.humidity_min, self.humidity_max), self.humidity_decimal_places)
             
-            # Store readings locally
+            # Store readings locally temporarily
             collected_temperatures.append(temperature)
             collected_humidities.append(humidity)
             
             # When enough data is collected, process and send the aggregated metrics
             if len(collected_temperatures) >= self.aggregation_interval:
+                timestamp = datetime.now(UTC).isoformat()
+
+                # Calculate the aggregated statistics
                 min_temp = min(collected_temperatures)
                 max_temp = max(collected_temperatures)
+                avg_temperature = round(sum(collected_temperatures) / len(collected_temperatures), 2)
+
                 min_humidity = min(collected_humidities)
                 max_humidity = max(collected_humidities)
-                avg_temperature = round(sum(collected_temperatures) / len(collected_temperatures), 2)
                 avg_humidity = round(sum(collected_humidities) / len(collected_humidities), 2)
                 
                 telemetry_data = {
+                    "timestamp": timestamp,
                     "min_temperature": min_temp,
                     "max_temperature": max_temp,
                     "avg_temperature": avg_temperature,
@@ -142,7 +148,7 @@ class HumidityAggregatedDevice:
 if __name__ == "__main__":
     try:
         device = HumidityAggregatedDevice()
-        device.send_edge_computed_telemetry()
+        device.send_telemetry()
 
     except KeyboardInterrupt:
         print("Stopped sending data")
