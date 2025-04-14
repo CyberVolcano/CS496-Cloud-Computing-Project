@@ -36,3 +36,29 @@ Extra Credit Opportunity (Optional)
  - [Cosmos DB](https://azure.microsoft.com/en-us/products/cosmos-db/)
  - [Grafana](https://grafana.com/)
  - [Azure IOT Hub](https://learn.microsoft.com/en-us/azure/iot-hub/create-hub?tabs=portal)
+
+
+### HOW TO RUN THE SCRIPT
+1. cd into Mosquitto if necessary via and start MQTT broker:
+cd "C:\Program Files\mosquitto"
+.\mosquitto.exe -v
+
+Subscribing to a topic
+2. Open a second terminal simultaneously and run:
+cd "C:\Program Files\mosquitto"
+.\mosquitto_sub -t "telemetry/device1" -v
+
+3. Open the python script and run the script:
+python script.py
+
+Output should look like:
+Sent to Azure
+Published to Mosquitto topic 'telemetry/device1'
+
+And second terminal should print Mosquitto Telemetry:
+telemetry/device1 {"timestamp": "...", "temperature": ..., "humidity": ...}
+
+(OPTIONAL - NEED TO INSTALL CLI to work)
+Azure Telemetry messages can be printed in seperate terminal with (BUT HAS NOT BEEN SETUP YET IF DESIRED TOO):
+cd "C:\Program Files\mosquitto"
+az iot hub monitor-events --hub-name CS496ProjectHub --device-id FirstDevice
