@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-=======
-from datetime import datetime, UTC
-
-from azure.iot.device import IoTHubDeviceClient, Message
->>>>>>> 67e3d57304c534609154631c122c910fc9c39159
 import time
 import random
 import json
@@ -11,13 +5,8 @@ from datetime import datetime, UTC
 import paho.mqtt.client as mqtt
 from azure.iot.device import IoTHubDeviceClient, Message
 
-<<<<<<< HEAD
 # Azure IoT Hub connection string
 AZURE_CONNECTION_STRING = "HostName=CS496ProjectHub.azure-devices.net;DeviceId=FirstDevice;SharedAccessKey=Bygk3gIvOcqlIfjsJSpTAFIdy50qRJGeTbrV9X0FKeg="
-=======
-# Replace with your device connection string from Azure IoT Hub
-CONNECTION_STRING = "HostName=CS496ProjectHub.azure-devices.net;DeviceId=FirstDevice;SharedAccessKey=Bygk3gIvOcqlIfjsJSpTAFIdy50qRJGeTbrV9X0FKeg="
->>>>>>> 67e3d57304c534609154631c122c910fc9c39159
 
 # Local MQTT broker settings
 MQTT_BROKER = "localhost"
@@ -30,11 +19,9 @@ mqtt_client = mqtt.Client()
 # Initialize Azure IoT client
 azure_client = IoTHubDeviceClient.create_from_connection_string(AZURE_CONNECTION_STRING)
 
-
 def send_telemetry():
     try:
         print("Connecting to Azure IoT Hub...")
-<<<<<<< HEAD
         azure_client.connect()
 
         print("Connecting to local Mosquitto broker...")
@@ -51,18 +38,6 @@ def send_telemetry():
                 "temperature": temperature,
                 "humidity": humidity
             }
-=======
-        client.connect()
-
-        while True:
-            temperature = random.uniform(20, 30)  # Simulated temperature data
-            humidity = random.uniform(40, 60)  # Simulated humidity data
-            timestamp = datetime.now(UTC).isoformat()
-
-            message = Message(f'{{"timestamp": "{timestamp}", "temperature": {temperature}, "humidity": {humidity}}}')
-            message.content_encoding = "utf-8"
-            message.content_type = "application/json"
->>>>>>> 67e3d57304c534609154631c122c910fc9c39159
 
             json_payload = json.dumps(payload)
 
@@ -71,11 +46,11 @@ def send_telemetry():
             azure_msg.content_encoding = "utf-8"
             azure_msg.content_type = "application/json"
             azure_client.send_message(azure_msg)
-            print("Sent to Azure")
+            print("✅ Sent to Azure")
 
             # Send to Mosquitto
             mqtt_client.publish(MQTT_TOPIC, json_payload)
-            print(f"Published to Mosquitto topic '{MQTT_TOPIC}'\n")
+            print(f"✅ Published to Mosquitto topic '{MQTT_TOPIC}'\n")
 
             time.sleep(5)
 
@@ -86,7 +61,6 @@ def send_telemetry():
         mqtt_client.disconnect()
         azure_client.shutdown()
         print("Disconnected from both brokers.")
-
 
 if __name__ == "__main__":
     send_telemetry()
