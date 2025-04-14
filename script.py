@@ -46,11 +46,11 @@ def send_telemetry():
             azure_msg.content_encoding = "utf-8"
             azure_msg.content_type = "application/json"
             azure_client.send_message(azure_msg)
-            print("✅ Sent to Azure")
+            print("Sent to Azure")
 
             # Send to Mosquitto
             mqtt_client.publish(MQTT_TOPIC, json_payload)
-            print(f"✅ Published to Mosquitto topic '{MQTT_TOPIC}'\n")
+            print(f"Published to Mosquitto topic '{MQTT_TOPIC}'\n")
 
             time.sleep(5)
 
