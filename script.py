@@ -1,6 +1,5 @@
-import time
-import random
 import json
+import requests
 from datetime import datetime, UTC
 import paho.mqtt.client as mqtt
 from azure.iot.device import IoTHubDeviceClient, Message
@@ -13,13 +12,64 @@ MQTT_BROKER = "localhost"
 MQTT_PORT = 1883
 MQTT_TOPIC = "telemetry/device1"
 
-# Initialize MQTT client
-mqtt_client = mqtt.Client()
+# Weather API settings
+LAT, LON = 32.7157, -117.1611  # San Diego
+POINT = f"{LAT},{LON}"
+BASE_URL = "https://api.weather.gov"
+HEADERS = {"User-Agent": "CS496IotProject (aolson2733@sdsu.edu)"}
 
-# Initialize Azure IoT client
+# Initialize clients
+mqtt_client = mqtt.Client()
 azure_client = IoTHubDeviceClient.create_from_connection_string(AZURE_CONNECTION_STRING)
 
-def send_telemetry():
+def fetch_weather():
+    try:
+        # Get point metadata
+        point_data = requests.get(f"{BASE_URL}/points/{POINT}", headers=HEADERS).json()
+        gridId = point_data['properties']['gridId']
+        gridX = point_data['properties']['gridX']
+        gridY = point_data['properties']['gridY']
+
+        # Get forecast data
+        grid_url = f"{BASE_URL}/gridpoints/{gridId}/{gridX},{gridY}"
+        grid_data = requests.get(grid_url, headers=HEADERS).json()
+
+        # Extract desired fields
+        properties = grid_data.get("properties", {})
+        fields = {
+            "temperature": None,
+            "relativeHumidity": None,
+            "skyCover": None,
+            "windGust": None,
+            "windSpeed": None,
+            "windDirection": None,
+            "visibility": None,
+            "ceilingHeight": None,
+            "probabilityOfPrecipitation": None,
+            "quantitativePrecipitation": None,
+        }
+
+        for field in fields:
+            values = properties.get(field, {}).get("values", [])
+            if values:
+                fields[field] = values[0]["value"]
+
+        # Get preset weather (as description)
+        weather_description = properties.get("weather", {}).get("values", [])
+        preset_weather = weather_description[0]["value"] if weather_description else "Unknown"
+
+        return {
+            "timestamp": datetime.now(UTC).isoformat(),
+            **fields,
+            "cloudCover": fields["skyCover"],
+            "presetWeather": preset_weather
+        }
+
+    except Exception as e:
+        print(f"Error fetching weather data: {e}")
+        return None
+
+def run_once():
     try:
         print("Connecting to Azure IoT Hub...")
         azure_client.connect()
@@ -28,18 +78,9 @@ def send_telemetry():
         mqtt_client.connect(MQTT_BROKER, MQTT_PORT, 60)
         mqtt_client.loop_start()
 
-        while True:
-            temperature = round(random.uniform(20, 30), 2)
-            humidity = round(random.uniform(40, 60), 2)
-            timestamp = datetime.now(UTC).isoformat()
-
-            payload = {
-                "timestamp": timestamp,
-                "temperature": temperature,
-                "humidity": humidity
-            }
-
-            json_payload = json.dumps(payload)
+        weather_data = fetch_weather()
+        if weather_data:
+            json_payload = json.dumps(weather_data)
 
             # Send to Azure
             azure_msg = Message(json_payload)
@@ -50,12 +91,11 @@ def send_telemetry():
 
             # Send to Mosquitto
             mqtt_client.publish(MQTT_TOPIC, json_payload)
-            print(f"Published to Mosquitto topic '{MQTT_TOPIC}'\n")
+            print(f"Published to Mosquitto topic '{MQTT_TOPIC}'")
 
-            time.sleep(5)
+        else:
+            print("Skipping send — no weather data available.")
 
-    except KeyboardInterrupt:
-        print("\nTelemetry stopped by user.")
     finally:
         mqtt_client.loop_stop()
         mqtt_client.disconnect()
@@ -63,4 +103,4 @@ def send_telemetry():
         print("Disconnected from both brokers.")
 
 if __name__ == "__main__":
-    send_telemetry()
+    run_once()
