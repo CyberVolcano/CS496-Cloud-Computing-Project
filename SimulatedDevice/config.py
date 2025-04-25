@@ -31,7 +31,11 @@ DEVICE_ID = os.environ.get("DEVICE_ID")
 SHARED_ACCESS_KEY = os.environ.get("SHARED_ACCESS_KEY") 
 
 # Device configuration
-POSITION = f'{config["device"]["weather"]["position"]["latitude"]},{config["device"]["weather"]["position"]["longitude"]}'
-USER_AGENT = config["device"]["weather"]["user_agent"]
+POSITION = f'{config["device"]["position"]["latitude"]},{config["device"]["position"]["longitude"]}'
+USER_AGENT = os.environ.get("WEATHER_USER_AGENT")
 BASE_URL = "https://api.weather.gov"
 HEADERS = {"User-Agent": USER_AGENT}
+
+if not (IOT_HUB_HOSTNAME and DEVICE_ID and SHARED_ACCESS_KEY and USER_AGENT):
+    print("Error: Environment variables for IoT Hub configuration are not set.")
+    exit(1)
