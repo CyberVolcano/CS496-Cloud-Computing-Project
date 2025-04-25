@@ -1,13 +1,6 @@
 from datetime import datetime, UTC
-from dotenv import load_dotenv
 import requests
-
-from config import POSITION, USER_AGENT
-
-load_dotenv()
-
-BASE_URL = "https://api.weather.gov"
-HEADERS = {"User-Agent": USER_AGENT}
+from config import POSITION, HEADERS, BASE_URL
 
 def fetch_weather():
     try:

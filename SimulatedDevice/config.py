@@ -1,4 +1,7 @@
+from dotenv import load_dotenv
 import yaml, os
+
+load_dotenv()
 
 def load_config(config_path="config.yaml"):
     """
@@ -22,5 +25,13 @@ if not config:
     print("Configuration failed to load.")
     exit(1)
 
+# Load Environment Variables
+IOT_HUB_HOSTNAME = os.environ.get("IOT_HUB_NAME") + ".azure-devices.net"
+DEVICE_ID = os.environ.get("DEVICE_ID") 
+SHARED_ACCESS_KEY = os.environ.get("SHARED_ACCESS_KEY") 
+
+# Device configuration
 POSITION = f'{config["device"]["weather"]["position"]["latitude"]},{config["device"]["weather"]["position"]["longitude"]}'
 USER_AGENT = config["device"]["weather"]["user_agent"]
+BASE_URL = "https://api.weather.gov"
+HEADERS = {"User-Agent": USER_AGENT}
