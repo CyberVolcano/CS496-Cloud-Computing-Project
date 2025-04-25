@@ -1,0 +1,6 @@
+device:
+  weather:
+    position:
+      latitude: 32.7157
+      longitude: -117.1611
+    user_agent: "CS496IotProject (aolson2733@sdsu.edu)"

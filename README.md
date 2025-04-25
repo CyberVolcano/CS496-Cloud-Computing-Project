@@ -62,3 +62,9 @@ telemetry/device1 {"timestamp": "...", "temperature": ..., "humidity": ...}
 Azure Telemetry messages can be printed in seperate terminal with (BUT HAS NOT BEEN SETUP YET IF DESIRED TOO):
 cd "C:\Program Files\mosquitto"
 az iot hub monitor-events --hub-name CS496ProjectHub --device-id FirstDevice
+
+create .env file
+
+download this certificate: https://cacerts.digicert.com/BaltimoreCyberTrustRoot.crt.pem
+
+run python device.py or python SimulatedDevice/device.py
