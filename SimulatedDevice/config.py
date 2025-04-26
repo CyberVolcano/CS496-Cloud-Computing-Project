@@ -30,11 +30,14 @@ IOT_HUB_HOSTNAME = os.environ.get("IOT_HUB_NAME") + ".azure-devices.net"
 DEVICE_ID = os.environ.get("DEVICE_ID") 
 SHARED_ACCESS_KEY = os.environ.get("SHARED_ACCESS_KEY") 
 
-# Device configuration
-POSITION = f'{config["device"]["position"]["latitude"]},{config["device"]["position"]["longitude"]}'
-USER_AGENT = os.environ.get("WEATHER_USER_AGENT")
+# Weather API configuration
 BASE_URL = "https://api.weather.gov"
+USER_AGENT = os.environ.get("WEATHER_USER_AGENT")
 HEADERS = {"User-Agent": USER_AGENT}
+POSITION = f'{config["device"]["position"]["latitude"]},{config["device"]["position"]["longitude"]}'
+
+# Device configuration
+SEND_INTERVAL = config["device"]["send_interval"]
 
 if not (IOT_HUB_HOSTNAME and DEVICE_ID and SHARED_ACCESS_KEY and USER_AGENT):
     print("Error: Environment variables for IoT Hub configuration are not set.")
