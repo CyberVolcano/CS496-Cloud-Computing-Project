@@ -16,6 +16,47 @@ def on_disconnect(client, userdata, rc):
 def on_publish(client, userdata, mid):
     print("Device message published with mid: " + str(mid))
 
+# Possible edge computing/processing function
+def process_weather_data(weather_data):
+    """
+    Processes raw weather data to compute:
+    - wind speed in mph
+    - approximate dew point (°C)
+    - simple feels-like temperature (°C) via a basic heat-index/wind-chill model.
+    
+    Returns a new dictionary merging the originals + the derived metrics.
+    """
+    out = weather_data.copy()
+
+    t_c = weather_data.get("temperature")  # °C
+    rh = weather_data.get("relativeHumidity")  # %
+    ws = weather_data.get("windSpeed")  # m/s
+
+    # Convert wind speed (m/s) to mph
+    if ws is not None:
+        out["wind_speed_mph"] = round(ws * 2.23694, 1)
+
+    # Approximate dew point (°C)
+    if t_c is not None and rh is not None:
+        dew_point = t_c - (100 - rh) / 5.0
+        out["dewPoint_c"] = round(dew_point, 1)
+
+    # Compute feels-like temperature (°C)
+    feels_like = None
+    if t_c is not None and rh is not None and ws is not None:
+        if t_c >= 26 and rh >= 40:
+            # Simple heat-index approximation
+            feels_like = t_c + 0.33 * rh - 0.70 * ws - 4.0
+        elif t_c <= 10 and ws > 1.34:
+            # Simple wind-chill formula
+            feels_like = 13.12 + 0.6215 * t_c - 11.37 * (ws ** 0.16) + 0.3965 * t_c * (ws ** 0.16)
+        
+        if feels_like is not None:
+            out["feelsLike_c"] = round(feels_like, 1)
+
+    return out
+
+
 def run_device():
     client = mqtt.Client(client_id=DEVICE_ID, protocol=mqtt.MQTTv311)
     client.username_pw_set(username=f"{IOT_HUB_HOSTNAME}/{DEVICE_ID}/?api-version=2021-04-12", password=sas_token)
