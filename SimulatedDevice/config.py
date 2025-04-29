@@ -1,0 +1,53 @@
+from dotenv import load_dotenv
+import yaml, os
+
+load_dotenv()
+
+def load_config(config_path="config.yaml"):
+    """
+    Loads configuration from a YAML file in the same directory as this script.
+    """
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    config_file_path = os.path.join(script_dir, config_path)
+    try:
+        with open(config_file_path, 'r') as f:
+            config = yaml.safe_load(f)
+        return config
+    except FileNotFoundError:
+        print(f"Error: Configuration file '{config_file_path}' not found.")
+        return None
+    except yaml.YAMLError as e:
+        print(f"Error parsing YAML file: {e}")
+        return None
+
+config = load_config()
+if not config:
+    print("Configuration failed to load.")
+    exit(1)
+
+# Load Environment Variables
+IOT_HUB_HOSTNAME = os.environ.get("IOT_HUB_NAME") + ".azure-devices.net"
+DEVICE_ID = os.environ.get("DEVICE_ID") 
+SHARED_ACCESS_KEY = os.environ.get("SHARED_ACCESS_KEY") 
+
+# Weather API configuration
+BASE_URL = "https://api.weather.gov"
+USER_AGENT = os.environ.get("WEATHER_USER_AGENT")
+HEADERS = {"User-Agent": USER_AGENT}
+POSITION = f'{config["device"]["position"]["latitude"]},{config["device"]["position"]["longitude"]}'
+
+# Device configuration
+SEND_INTERVAL = config["device"]["send_interval"]
+
+if not (IOT_HUB_HOSTNAME and DEVICE_ID and SHARED_ACCESS_KEY and USER_AGENT):
+    print("Error: Environment variables for IoT Hub configuration are not set.")
+    exit(1)
+
+if __name__ == "__main__":
+    print("Configuration loaded successfully.")
+    print(f"IoT Hub Hostname: {IOT_HUB_HOSTNAME}")
+    print(f"Device ID: {DEVICE_ID}")
+    print(f"Shared Access Key: {SHARED_ACCESS_KEY}")
+    print(f"Weather API User-Agent: {USER_AGENT}")
+    print(f"Position: {POSITION}")
+    print(f"Send Interval: {SEND_INTERVAL} seconds")

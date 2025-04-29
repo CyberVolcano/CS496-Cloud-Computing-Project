@@ -1,64 +1,118 @@
-### Description
+# CS496 Cloud Computing Project - Simulated IoT Device
 
-This project demonstrates how real or simulated devices (e.g., sensors measuring
-temperature/humidity) can send data to a central platform for real-time storage,
-analytics, or dashboarding. It exposes you to event-driven architectures, message
-brokering (MQTT), and how to set up dashboards for streaming data.
+## Overview
 
-Use Case
- - 	A greenhouse or small farm environment logging conditions to optimize plant growth.
- - 	A “smart home” demonstration collecting sensor data (door sensors, temperature, light levels).
- - 	A robotics club streaming data from multiple bots or drones to a single dashboard.
-Difficulty Bonus
-3
+This project simulates an IoT device that collects weather data and sends it to Azure IoT Hub. The device fetches weather information from the National Weather Service API, performs some basic data processing, and then publishes the data to an Azure IoT Hub using the MQTT protocol.
 
-Basic Rubric (How to Start) - D.L. Assuming we are taking the cloud route.
-1.	Messaging Protocol
-- [ ] Cloud: Azure IoT Hub free tier.
-- Local: Mosquitto (MQTT broker) installed in a container or on your machine.
-2.	Simulated Device Script
-- [ ] Python or Node.js program that sends random sensor readings at intervals.
-- [ ] Structure the data as JSON (e.g., { "temp": 22.5, "humidity": 60 }).
-3.	Data Storage
-- [ ] Azure: Use Cosmos DB or Table Storage.
--	Local: Try InfluxDB (time-series) or PostgreSQL.
-5.	Visualization
-- [ ] Grafana or a custom front-end that queries your DB for the latest readings.
-5.	Testing
-Confirm your script sends data, see it appear in the DB, and visualize in near real-time on the dashboard.
-Extra Credit Opportunity (Optional)
-- [ ]	Alerts & Thresholds: Trigger notifications if a sensor reading goes above/below a certain level.
-- [ ]	Edge Computing: Perform partial data processing on the “device” side before sending final metrics.
+## Project Structure
 
+The project is structured as follows:
 
-### Websites
+*   `.`: Root directory containing project-level files.
+    *   `.env`: Stores environment-specific variables (API keys, device credentials).  **Note:** This file should not be committed to version control.  Use `.env.example` as a template.
+    *   `.env.example`:  A template for the `.env` file, showing the required environment variables.
+    *   `.gitignore`: Specifies intentionally untracked files that Git should ignore.
+    *   `Dockerfile`:  Used to build a Docker image for the project.
+    *   `README.md`: Project documentation (this file).
+    *   `requirements.txt`: Lists the Python packages required to run the project.
+*   `SimulatedDevice`: Contains the Python scripts for the simulated device.
+    *   `config.py`: Loads configuration settings from `config.yaml` and environment variables.
+    *   `config.yaml`: Contains device-specific configuration (e.g., location, send interval).
+    *   `device.py`: The main script that simulates the IoT device, fetches weather data, and sends it to Azure IoT Hub.
+    *   `utils.py`: Contains utility functions, such as the `make_sas` function for generating SAS tokens.
+    *   `weather.py`: Fetches weather data from the National Weather Service API.
 
- - [Cosmos DB](https://azure.microsoft.com/en-us/products/cosmos-db/)
- - [Grafana](https://grafana.com/)
- - [Azure IOT Hub](https://learn.microsoft.com/en-us/azure/iot-hub/create-hub?tabs=portal)
+## Key Components
 
+### 1. `device.py` ([`SimulatedDevice/device.py`](SimulatedDevice/device.py))
 
-### HOW TO RUN THE SCRIPT
-1. cd into Mosquitto if necessary via and start MQTT broker:
-cd "C:\Program Files\mosquitto"
-.\mosquitto.exe -v
+This is the main script that simulates the IoT device. It performs the following actions:
 
-Subscribing to a topic
-2. Open a second terminal simultaneously and run:
-cd "C:\Program Files\mosquitto"
-.\mosquitto_sub -t "telemetry/device1" -v
+*   Connects to Azure IoT Hub using MQTT.
+*   Fetches weather data using the `weather.py` module.
+*   Optionally processes the weather data (simulating edge computing).
+*   Publishes the data to Azure IoT Hub.
+*   Handles connection, disconnection, and publishing events.
 
-3. Open the python script and run the script:
-python script.py
+### 2. `weather.py` ([`SimulatedDevice/weather.py`](SimulatedDevice/weather.py))
 
-Output should look like:
-Sent to Azure
-Published to Mosquitto topic 'telemetry/device1'
+This module is responsible for fetching weather data from the National Weather Service API. It uses the `requests` library to make HTTP requests and extracts relevant information from the API response.  It uses the `POSITION`, `HEADERS`, and `BASE_URL` variables defined in [`SimulatedDevice/config.py`](SimulatedDevice/config.py).
 
-And second terminal should print Mosquitto Telemetry:
-telemetry/device1 {"timestamp": "...", "temperature": ..., "humidity": ...}
+### 3. `config.py` ([`SimulatedDevice/config.py`](SimulatedDevice/config.py))
 
-(OPTIONAL - NEED TO INSTALL CLI to work)
-Azure Telemetry messages can be printed in seperate terminal with (BUT HAS NOT BEEN SETUP YET IF DESIRED TOO):
-cd "C:\Program Files\mosquitto"
-az iot hub monitor-events --hub-name CS496ProjectHub --device-id FirstDevice
+This module loads configuration settings from two sources:
+
+*   `config.yaml`:  A YAML file containing device-specific settings like location coordinates and the data sending interval.
+*   Environment variables: Stores sensitive information like IoT Hub credentials and API keys.  Environment variables are loaded from the `.env` file using the `python-dotenv` library.
+
+### 4. `utils.py` ([`SimulatedDevice/utils.py`](SimulatedDevice/utils.py))
+
+This module provides utility functions used in the project. Currently, it only contains the `make_sas` function, which generates Shared Access Signature (SAS) tokens for authenticating with Azure IoT Hub.
+
+## Setup and Installation
+
+1.  **Clone the repository:**
+
+2.  **Create a virtual environment:**
+
+    ```bash
+    python -m venv .venv
+    ```
+
+3.  **Activate the virtual environment:**
+
+    ```bash
+    .venv\Scripts\activate  # Windows
+    source .venv/bin/activate # Linux or macOS
+    ```
+
+4.  **Install dependencies:**
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+5.  **Configure environment variables:**
+
+    *   Create a `.env` file in the root directory.  Use `.env.example` as a template.
+    *   Set the following environment variables:
+        *   `IOT_HUB_NAME`: The name of your Azure IoT Hub.
+        *   `DEVICE_ID`: The ID of your simulated device.
+        *   `SHARED_ACCESS_KEY`: The shared access key for your device.
+        *   `WEATHER_USER_AGENT`: A user agent string for the weather API.
+
+6.  **Configure device settings:**
+
+    *   Modify the `SimulatedDevice/config.yaml` file to set the device's location (latitude and longitude) and the data sending interval.
+
+## Running the Simulation
+
+To run the simulated device, execute the following command from the project root directory:
+
+```bash
+python SimulatedDevice/device.py
+```
+
+This will start the device, which will connect to Azure IoT Hub, fetch weather data, and send it to the hub at the specified interval.
+
+## Docker
+
+A Dockerfile is provided to containerize the application.
+
+1.  **Build the Docker image:**
+
+    ```bash
+    docker build -t simulated-device .
+    ```
+
+2.  **Run the Docker container:**
+
+    ```bash
+    docker run --env-file .env -d --name simulated-device-container simulated-device
+    ```
+
+    **Note:** Ensure `.env` file is properly formated or use `-e` flag for environment variables.
+
+## Edge Computing Simulation
+
+The device.py script includes a `process_weather_data` function that simulates edge computing. This function performs basic data processing on the weather data before sending it to Azure IoT Hub. The function calculates wind speed in mph, dew point, and "feels like" temperature. To enable this, the `run_device` function should be adjusted to call `process_weather_data` before publishing to the IoT Hub.
