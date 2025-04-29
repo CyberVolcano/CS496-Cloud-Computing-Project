@@ -42,3 +42,12 @@ SEND_INTERVAL = config["device"]["send_interval"]
 if not (IOT_HUB_HOSTNAME and DEVICE_ID and SHARED_ACCESS_KEY and USER_AGENT):
     print("Error: Environment variables for IoT Hub configuration are not set.")
     exit(1)
+
+if __name__ == "__main__":
+    print("Configuration loaded successfully.")
+    print(f"IoT Hub Hostname: {IOT_HUB_HOSTNAME}")
+    print(f"Device ID: {DEVICE_ID}")
+    print(f"Shared Access Key: {SHARED_ACCESS_KEY}")
+    print(f"Weather API User-Agent: {USER_AGENT}")
+    print(f"Position: {POSITION}")
+    print(f"Send Interval: {SEND_INTERVAL} seconds")

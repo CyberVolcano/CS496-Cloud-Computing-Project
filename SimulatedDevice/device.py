@@ -58,17 +58,22 @@ def process_weather_data(weather_data):
 
 
 def run_device():
+    # Create MQTT client and set up connection parameters
     client = mqtt.Client(client_id=DEVICE_ID, protocol=mqtt.MQTTv311)
     client.username_pw_set(username=f"{IOT_HUB_HOSTNAME}/{DEVICE_ID}/?api-version=2021-04-12", password=sas_token)
 
+    # Set TLS parameters
+    # Note: The certifi library is used to get the CA certificates for Azure IoT Hub
     client.tls_set(ca_certs=certifi.where(),
                 cert_reqs=ssl.CERT_REQUIRED,
                 tls_version=ssl.PROTOCOL_TLSv1_2)
 
-    client.on_connect    = on_connect
-    client.on_disconnect = on_disconnect
-    client.on_publish    = on_publish
+    # Set up callbacks
+    client.on_connect       = on_connect
+    client.on_disconnect    = on_disconnect
+    client.on_publish       = on_publish
 
+    # Connect to Azure IoT Hub & start loop
     client.connect(IOT_HUB_HOSTNAME, port=8883)
     client.loop_start()
 
@@ -86,6 +91,7 @@ def run_device():
 
             time.sleep(SEND_INTERVAL)
 
+    # Handle graceful shutdown
     except KeyboardInterrupt:
         print("Stopping device...")
     
