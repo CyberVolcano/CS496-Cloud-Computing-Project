@@ -7,11 +7,6 @@ from azure.iot.device import IoTHubDeviceClient, Message
 # Azure IoT Hub connection string
 AZURE_CONNECTION_STRING = "HostName=CS496ProjectHub.azure-devices.net;DeviceId=FirstDevice;SharedAccessKey=Bygk3gIvOcqlIfjsJSpTAFIdy50qRJGeTbrV9X0FKeg="
 
-# Local MQTT broker settings
-MQTT_BROKER = "localhost"
-MQTT_PORT = 1883
-MQTT_TOPIC = "telemetry/device1"
-
 # Weather API settings
 LAT, LON = 32.7157, -117.1611  # San Diego
 POINT = f"{LAT},{LON}"
@@ -74,10 +69,6 @@ def run_once():
         print("Connecting to Azure IoT Hub...")
         azure_client.connect()
 
-        print("Connecting to local Mosquitto broker...")
-        mqtt_client.connect(MQTT_BROKER, MQTT_PORT, 60)
-        mqtt_client.loop_start()
-
         weather_data = fetch_weather()
         if weather_data:
             json_payload = json.dumps(weather_data)
@@ -89,18 +80,12 @@ def run_once():
             azure_client.send_message(azure_msg)
             print("Sent to Azure")
 
-            # Send to Mosquitto
-            mqtt_client.publish(MQTT_TOPIC, json_payload)
-            print(f"Published to Mosquitto topic '{MQTT_TOPIC}'")
-
         else:
             print("Skipping send — no weather data available.")
 
     finally:
-        mqtt_client.loop_stop()
-        mqtt_client.disconnect()
         azure_client.shutdown()
-        print("Disconnected from both brokers.")
+        print("Disconnected from Azure.")
 
 if __name__ == "__main__":
     run_once()
